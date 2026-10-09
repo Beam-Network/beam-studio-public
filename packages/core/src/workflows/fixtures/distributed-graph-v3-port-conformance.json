@@ -1,0 +1,35 @@
+{
+  "graphFixture": "distributed-graph-v3.json",
+  "registry": {
+    "sourceCommit": "a33dab7e4bbdae27ce4ce4d3b62c5ee3cc5b1b69",
+    "apiVersion": "workflow-actions/v2",
+    "requiredCapabilities": ["action-execution/v1", "action-artifact-ports/v1"],
+    "outputPort": {
+      "type": "artifact",
+      "cardinality": "one",
+      "format": "application/octet-stream",
+      "required": true
+    },
+    "inputPort": {
+      "type": "artifact",
+      "cardinality": "one",
+      "format": "application/octet-stream",
+      "required": true
+    }
+  },
+  "runtime": {
+    "sourceCommit": "75162d03aaaa434262177d087f6a0283f4394ed4",
+    "protocol": "action-artifact-ports/v1",
+    "memberAdvertisement": { "artifactPorts": "action-artifact-ports/v1" },
+    "outputSchema": {
+      "type": "artifact",
+      "required": true,
+      "format": "application/octet-stream"
+    },
+    "inputSchema": {
+      "type": "artifact",
+      "required": true,
+      "format": "application/octet-stream"
+    }
+  }
+}

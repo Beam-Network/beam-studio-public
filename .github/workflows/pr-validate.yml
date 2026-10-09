@@ -1,0 +1,134 @@
+name: Validate affected packages
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-validate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Typecheck, lint and test affected packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # apps/mcp-server runs `db:migrate` before its tests, so the suite needs a
+    # live PostgreSQL. The credentials match the default DATABASE_URL in
+    # packages/db/scripts/apply-postgres-migrations.mjs.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: beam
+          POSTGRES_PASSWORD: beam
+          POSTGRES_DB: beam_studio
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U beam -d beam_studio"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://beam:beam@127.0.0.1:5432/beam_studio
+      BEAM_TEST_POSTGRES_URL: postgres://beam:beam@127.0.0.1:5432/beam_studio
+      ASSISTANT_TEST_DATABASE_URL: postgres://beam:beam@127.0.0.1:5432/beam_studio
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Turbo resolves the affected set by diffing against the base branch,
+          # so the full history has to be present.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: packages/action-runtime/process-guard/go.mod
+          cache-dependency-path: packages/action-runtime/process-guard/go.sum
+
+      - name: Verify durable process ownership and compile test helper
+        run: |
+          cd packages/action-runtime/process-guard
+          go test -count=1 ./...
+          cd ../../..
+          node packages/action-runtime/scripts/build-process-guard.mjs
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          corepack enable
+          pnpm install --frozen-lockfile
+
+      - name: Verify Compose does not publish the datastores
+        run: node --test tests/compose-exposure.test.mjs
+
+      - name: Verify the installer keeps an existing .env on rerun
+        run: node --test tests/install-env.test.mjs
+
+      - name: Verify the signed release lists every template image
+        run: node --test tests/create-studio-release.test.mjs
+
+      - name: Verify the installer prints the claim code only to a terminal
+        run: node --test tests/install-claim-code.test.mjs
+
+      - name: Verify the api starts without the updater socket after a reboot
+        run: node --test tests/updater-socket-mount.test.mjs
+
+      - name: Verify room-transfer workflow contract surface
+        run: node scripts/check-room-transfer-contract-surface.mjs
+
+      - name: Resolve affected packages
+        id: affected
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "$BASE_REF"
+          echo "scope=...[origin/$BASE_REF]" >> "$GITHUB_OUTPUT"
+          echo "Affected packages:"
+          pnpm turbo run build --filter="...[origin/$BASE_REF]" --dry=json \
+            | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));const p=[...new Set(d.tasks.map(t=>t.package))];console.log(p.length?p.join("\n"):"(none)")'
+
+      - name: Typecheck
+        run: pnpm turbo run typecheck --filter="${{ steps.affected.outputs.scope }}"
+
+      - name: Lint
+        run: pnpm turbo run lint --filter="${{ steps.affected.outputs.scope }}"
+
+      # Typecheck accepts a Node builtin in a package the browser bundle
+      # imports; only bundling rejects it. Without this, such a break passes
+      # every PR check and first appears when dev builds the image.
+      - name: Build
+        run: pnpm turbo run build --filter="${{ steps.affected.outputs.scope }}"
+
+      - name: Test
+        run: pnpm turbo run test --filter="${{ steps.affected.outputs.scope }}"
+
+      # packages/db has no test script, so turbo does not reach this one.
+      - name: Verify named-parameter SQL compilation
+        run: NODE_OPTIONS=--conditions=development node apps/api/node_modules/tsx/dist/cli.mjs --test packages/db/src/sql-named-parameters.test.ts
+
+      - name: Verify PostgreSQL connection-loss recovery
+        run: NODE_OPTIONS=--conditions=development node apps/api/node_modules/tsx/dist/cli.mjs --test packages/db/src/postgres-connection-loss.test.ts
+
+      - name: Verify workflow executor integration against PostgreSQL
+        run: NODE_OPTIONS=--conditions=development node apps/api/node_modules/tsx/dist/cli.mjs --test tests/executor-integration.test.ts
+
+      - name: Rehearse workflow cutover backup and restore
+        run: NODE_OPTIONS=--conditions=development node apps/api/node_modules/tsx/dist/cli.mjs --test tests/workflow-cutover-cli.test.ts
+
+      - name: Verify standalone managed action runtime
+        if: ${{ hashFiles('packages/action-runtime/dist/cli.js') != '' }}
+        run: |
+          pnpm --filter @beam-studio/action-runtime deploy --prod --legacy "$RUNNER_TEMP/beam-action-runtime"
+          node "$RUNNER_TEMP/beam-action-runtime/dist/cli.js" --capabilities
+          test ! -d "$RUNNER_TEMP/beam-action-runtime/node_modules/@beam-studio/db"

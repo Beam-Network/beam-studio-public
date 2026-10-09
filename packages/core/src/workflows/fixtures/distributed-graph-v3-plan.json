@@ -1,0 +1,81 @@
+{
+  "version": "workflow-graph/v3",
+  "graphFixture": "distributed-graph-v3.json",
+  "membersByPartition": {
+    "participants": [
+      { "memberId": "member_a" },
+      { "memberId": "member_b" },
+      { "memberId": "member_c" }
+    ]
+  },
+  "expectedTasks": [
+    {
+      "stepId": "prepare",
+      "memberId": "member_a",
+      "index": 0,
+      "placement": "room-member"
+    },
+    {
+      "stepId": "prepare",
+      "memberId": "member_b",
+      "index": 1,
+      "placement": "room-member"
+    },
+    {
+      "stepId": "prepare",
+      "memberId": "member_c",
+      "index": 2,
+      "placement": "room-member"
+    },
+    {
+      "stepId": "transfer",
+      "memberId": "member_a",
+      "index": 0,
+      "placement": "studio",
+      "sourceMemberId": "member_a",
+      "recipientMemberIds": ["member_b"]
+    },
+    {
+      "stepId": "transfer",
+      "memberId": "member_b",
+      "index": 1,
+      "placement": "studio",
+      "sourceMemberId": "member_b",
+      "recipientMemberIds": ["member_c"]
+    },
+    {
+      "stepId": "transfer",
+      "memberId": "member_c",
+      "index": 2,
+      "placement": "studio",
+      "sourceMemberId": "member_c",
+      "recipientMemberIds": ["member_a"]
+    }
+  ],
+  "expectedRoutes": [
+    {
+      "from": {
+        "stepId": "prepare",
+        "memberId": "member_a",
+        "port": "payload"
+      },
+      "to": { "stepId": "transfer", "memberId": "member_a", "port": "payload" }
+    },
+    {
+      "from": {
+        "stepId": "prepare",
+        "memberId": "member_b",
+        "port": "payload"
+      },
+      "to": { "stepId": "transfer", "memberId": "member_b", "port": "payload" }
+    },
+    {
+      "from": {
+        "stepId": "prepare",
+        "memberId": "member_c",
+        "port": "payload"
+      },
+      "to": { "stepId": "transfer", "memberId": "member_c", "port": "payload" }
+    }
+  ]
+}

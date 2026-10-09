@@ -1,0 +1,6 @@
+[
+  {
+    "id": "wft_example_transfer_webhook",
+    "steps": ["@beam/transfer", "@beam/webhook"]
+  }
+]

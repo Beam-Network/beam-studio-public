@@ -1,0 +1,117 @@
+{
+  "protocol": "action-artifact-ports/v1",
+  "limits": {
+    "maxArtifactBytes": 32768,
+    "maxTotalBytes": 65536,
+    "maxArtifacts": 16
+  },
+  "identity": {
+    "workflowRunId": "run-1",
+    "stepRunId": "step-1",
+    "taskId": "task-1",
+    "assignmentId": "assignment-1",
+    "attempt": 2
+  },
+  "manifest": {
+    "name": "@test/ports",
+    "version": "1.0.0",
+    "apiVersion": "workflow-actions/v1",
+    "runtime": { "placements": ["local-workers", "room-members"] },
+    "inputs": {
+      "source": { "type": "artifact", "format": "text/plain", "required": true }
+    },
+    "outputs": {
+      "result": { "type": "artifact", "format": "text/plain", "required": true }
+    }
+  },
+  "cases": [
+    {
+      "name": "valid input",
+      "valid": true,
+      "inputs": {
+        "source": {
+          "type": "file",
+          "name": "input.txt",
+          "uri": "data:text/plain;base64,aGVsbG8=",
+          "mediaType": "text/plain",
+          "metadata": {
+            "bytes": 5,
+            "sha256": "sha256:2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing required input",
+      "valid": false,
+      "inputs": {}
+    },
+    {
+      "name": "wrong checksum",
+      "valid": false,
+      "inputs": {
+        "source": {
+          "type": "file",
+          "name": "input.txt",
+          "uri": "data:text/plain;base64,aGVsbG8=",
+          "metadata": {
+            "bytes": 5,
+            "sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        }
+      }
+    },
+    {
+      "name": "unsupported external handle",
+      "valid": false,
+      "inputs": {
+        "source": {
+          "type": "file",
+          "name": "input.txt",
+          "uri": "https://example.invalid/input.txt",
+          "metadata": {
+            "bytes": 5,
+            "sha256": "sha256:2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+          }
+        }
+      }
+    },
+    {
+      "name": "wrong format",
+      "valid": false,
+      "inputs": {
+        "source": {
+          "type": "file",
+          "name": "input.txt",
+          "uri": "data:application/json;base64,aGVsbG8=",
+          "mediaType": "application/json",
+          "metadata": {
+            "bytes": 5,
+            "sha256": "sha256:2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+          }
+        }
+      }
+    },
+    {
+      "name": "wrong cardinality",
+      "valid": false,
+      "inputs": { "source": [] }
+    }
+  ],
+  "publication": {
+    "type": "file",
+    "name": "result.txt",
+    "uri": "data:text/plain;base64,b3V0cHV0",
+    "mediaType": "text/plain",
+    "metadata": {
+      "port": "result",
+      "bytes": 6,
+      "sha256": "sha256:e0ee8bb50685e05fa0f47ed04203ae953fdfd055f5bd2892ea186504254f8c3a",
+      "workflowRunId": "run-1",
+      "stepRunId": "step-1",
+      "taskId": "task-1",
+      "assignmentId": "assignment-1",
+      "attempt": 2
+    }
+  }
+}

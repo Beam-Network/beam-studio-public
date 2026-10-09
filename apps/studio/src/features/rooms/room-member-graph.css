@@ -1,0 +1,35 @@
+.room-graph {
+  container-type: inline-size;
+}
+
+.room-graph-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.room-graph-canvas {
+  height: 360px;
+}
+
+@container (min-width: 620px) {
+  .room-graph-layout {
+    grid-template-columns: minmax(0, 1fr) clamp(250px, 32cqw, 280px);
+    gap: clamp(1rem, 3cqw, 3rem);
+    align-items: start;
+  }
+
+  .room-graph-scene {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .room-graph-info {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .room-graph-canvas {
+    height: clamp(480px, 60cqw, 620px);
+  }
+}

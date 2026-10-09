@@ -1,0 +1,8 @@
+{
+  "name": "@example/legacy",
+  "version": "1.0.0",
+  "apiVersion": "workflow-actions/v1",
+  "runtime": { "placements": ["local-workers"] },
+  "inputs": { "input": { "type": "object" } },
+  "outputs": { "output": { "type": "object" } }
+}

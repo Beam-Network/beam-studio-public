@@ -1,0 +1,52 @@
+{
+  "name": "@beam-studio/shared",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./ops-auth": {
+      "types": "./src/ops-auth.ts",
+      "development": "./src/ops-auth.ts",
+      "import": "./dist/ops-auth.js",
+      "default": "./dist/ops-auth.js"
+    },
+    "./logging": {
+      "types": "./src/logging.ts",
+      "development": "./src/logging.ts",
+      "import": "./dist/logging.js",
+      "default": "./dist/logging.js"
+    },
+    "./instance-claim": {
+      "types": "./src/instance-claim.ts",
+      "development": "./src/instance-claim.ts",
+      "import": "./dist/instance-claim.js",
+      "default": "./dist/instance-claim.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc --noEmit",
+    "test": "NODE_OPTIONS=--conditions=development tsx --test $(find src -name \"*.test.ts\" | sort)",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@beam-studio/vault": "workspace:*",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
+}

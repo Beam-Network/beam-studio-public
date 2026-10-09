@@ -1,0 +1,39 @@
+{
+  "name": "@beam-studio/action-runtime",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:process-guard": "node scripts/build-process-guard.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "NODE_OPTIONS=--conditions=development tsx --test src/*.test.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1053.0",
+    "@beam-studio/core": "workspace:*",
+    "tar": "^7.5.2"
+  },
+  "devDependencies": {
+    "@types/tar": "^6.1.13",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "files": [
+    "dist",
+    "native",
+    "src",
+    "fixtures"
+  ]
+}

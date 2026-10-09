@@ -1,0 +1,25 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "passThroughEnv": ["DATABASE_URL", "BEAM_TEST_POSTGRES_URL", "ASSISTANT_TEST_DATABASE_URL"],
+      "cache": false,
+      "outputs": []
+    }
+  }
+}

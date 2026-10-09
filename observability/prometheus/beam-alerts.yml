@@ -1,0 +1,38 @@
+groups:
+  - name: beam-local-runtime
+    rules:
+      - alert: BeamWorkflowBacklogHigh
+        expr: sum(beam_workflow_queue_depth{state=~"queued|retry_scheduled"}) > 25 and beam_workflow_queue_oldest_age_seconds > 300
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Beam workflow backlog is old and growing
+          runbook: docs/runbooks/workflow-backlog.md
+
+      - alert: BeamWorkflowFailureRateHigh
+        expr: sum(rate(beam_workflow_action_executions_total{status=~"dead_letter|terminal"}[10m])) / clamp_min(sum(rate(beam_workflow_action_executions_total[10m])), 0.001) > 0.10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: More than 10% of Beam action executions are failing
+          runbook: docs/runbooks/workflow-failures.md
+
+      - alert: BeamActionBlocked
+        expr: sum(increase(beam_workflow_action_blocked_total[5m])) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: An action was blocked by configuration, permission, trust, or sandbox policy
+          runbook: docs/runbooks/blocked-actions.md
+
+      - alert: BeamWorkerStale
+        expr: sum(beam_workers{status="stale"}) > 0 or beam_worker_heartbeat_age_seconds{status="stale"} > 60
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: At least one Beam worker heartbeat is stale
+          runbook: docs/runbooks/stale-workers.md

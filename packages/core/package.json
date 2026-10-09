@@ -1,0 +1,84 @@
+{
+  "name": "@beam-studio/core",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./scheduling": {
+      "types": "./src/scheduling/policy.ts",
+      "development": "./src/scheduling/policy.ts",
+      "import": "./dist/scheduling/policy.js",
+      "default": "./dist/scheduling/policy.js"
+    },
+    "./workflows/graph-v2": {
+      "types": "./src/workflows/graph-v2.ts",
+      "development": "./src/workflows/graph-v2.ts",
+      "import": "./dist/workflows/graph-v2.js",
+      "default": "./dist/workflows/graph-v2.js"
+    },
+    "./workflows/graph-v3": {
+      "types": "./src/workflows/graph-v3.ts",
+      "development": "./src/workflows/graph-v3.ts",
+      "import": "./dist/workflows/graph-v3.js",
+      "default": "./dist/workflows/graph-v3.js"
+    },
+    "./workflows/graph-semantics": {
+      "types": "./src/workflows/graph-semantics.ts",
+      "development": "./src/workflows/graph-semantics.ts",
+      "import": "./dist/workflows/graph-semantics.js",
+      "default": "./dist/workflows/graph-semantics.js"
+    },
+    "./workflows/action-versions": {
+      "types": "./src/workflows/action-versions.ts",
+      "development": "./src/workflows/action-versions.ts",
+      "import": "./dist/workflows/action-versions.js",
+      "default": "./dist/workflows/action-versions.js"
+    },
+    "./workflows/decisions": {
+      "types": "./src/workflows/decisions.ts",
+      "development": "./src/workflows/decisions.ts",
+      "import": "./dist/workflows/decisions.js",
+      "default": "./dist/workflows/decisions.js"
+    },
+    "./workflows/node-metadata": {
+      "types": "./src/workflows/node-metadata.ts",
+      "development": "./src/workflows/node-metadata.ts",
+      "import": "./dist/workflows/node-metadata.js",
+      "default": "./dist/workflows/node-metadata.js"
+    },
+    "./workflows/billing-key": {
+      "types": "./src/workflows/billing-key.ts",
+      "development": "./src/workflows/billing-key.ts",
+      "import": "./dist/workflows/billing-key.js",
+      "default": "./dist/workflows/billing-key.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc --noEmit",
+    "test": "tsx --test $(find src -name \"*.test.ts\" | sort)",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@beam-studio/shared": "workspace:*",
+    "@noble/hashes": "2.2.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
+}

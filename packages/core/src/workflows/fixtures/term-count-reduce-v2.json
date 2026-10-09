@@ -1,0 +1,115 @@
+{
+  "name": "@beam/term-count-reduce",
+  "version": "1.0.0",
+  "displayName": "Term count reduce",
+  "description": "Combine a closed, identified collection of term counters with exact membership validation.",
+  "author": "Beam",
+  "apiVersion": "workflow-actions/v2",
+  "runtime": {
+    "placements": [
+      "local-workers",
+      "room-members"
+    ],
+    "defaultPlacement": "local-workers"
+  },
+  "execution": {
+    "runtime": "node",
+    "isolation": "sandboxed-esm",
+    "taskMode": "single-worker",
+    "capabilityContract": "action-execution/v1",
+    "minRuntimeVersion": "22.0.0",
+    "requiredCapabilities": [
+      "action-execution/v1",
+      "action-artifact-ports/v1",
+      "action-process-ownership/v1",
+      "runtime:node"
+    ],
+    "requiredResources": {
+      "capacitySlots": 1,
+      "leaseSeconds": 60
+    }
+  },
+  "inputs": {
+    "contributions": {
+      "type": "artifact",
+      "cardinality": "many",
+      "format": "application/vnd.beam.term-counts.v1+json",
+      "required": true
+    }
+  },
+  "outputs": {
+    "counts": {
+      "type": "artifact",
+      "cardinality": "one",
+      "format": "application/vnd.beam.term-counts.v1+json",
+      "required": true
+    }
+  },
+  "permissions": [],
+  "contracts": {
+    "resources": {
+      "cpuMillis": 1000,
+      "memoryMiB": 256,
+      "timeoutSeconds": 60,
+      "maxArtifactBytes": 32768,
+      "maxArtifacts": 16,
+      "maxInputBytes": 32768,
+      "maxOutputBytes": 32768
+    },
+    "recovery": {
+      "retry": "idempotent",
+      "externalEffects": "none"
+    },
+    "computation": {
+      "semanticId": "beam.term-count-reduce/v1",
+      "aggregation": {
+        "inputPort": "contributions",
+        "outputPort": "counts",
+        "contributionFormat": "application/vnd.beam.term-counts.v1+json",
+        "associative": true,
+        "closedUnderCombination": true
+      }
+    }
+  },
+  "trustLevel": "external",
+  "catalog": {
+    "category": "data",
+    "maturity": "experimental",
+    "owner": "Beam",
+    "tags": [
+      "room-workflows",
+      "term-count"
+    ],
+    "changelog": [
+      {
+        "version": "1.0.0",
+        "notes": [
+          "Initial deterministic Room Workflow artifact action."
+        ]
+      }
+    ]
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "collectionId",
+      "expectedDocumentIds"
+    ],
+    "properties": {
+      "collectionId": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$"
+      },
+      "expectedDocumentIds": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$"
+        }
+      }
+    }
+  }
+}

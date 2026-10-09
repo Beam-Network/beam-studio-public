@@ -1,0 +1,94 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "panels": [
+    {
+      "title": "Queued and retry-ready tasks",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (state) (beam_workflow_queue_depth{state=~\"queued|retry_scheduled\"})",
+          "legendFormat": "{{state}}"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+    },
+    {
+      "title": "Oldest queued task (seconds)",
+      "type": "stat",
+      "targets": [{ "expr": "max(beam_workflow_queue_oldest_age_seconds)" }],
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 }
+    },
+    {
+      "title": "Workers by health",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum by (status) (beam_workers)",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 }
+    },
+    {
+      "title": "Task p95 duration",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, task_kind) (rate(beam_workflow_task_duration_seconds_bucket[5m])))",
+          "legendFormat": "{{task_kind}}"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 }
+    },
+    {
+      "title": "Action outcomes",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (status, action_source) (rate(beam_workflow_action_executions_total[5m]))",
+          "legendFormat": "{{action_source}} / {{status}}"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 }
+    },
+    {
+      "title": "Retries and dead letters",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (reason) (rate(beam_workflow_task_retries_total[5m]))",
+          "legendFormat": "retry / {{reason}}"
+        },
+        {
+          "expr": "sum by (reason) (rate(beam_workflow_task_dead_letters_total[5m]))",
+          "legendFormat": "dead letter / {{reason}}"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 }
+    },
+    {
+      "title": "Durable publication backlog",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "beam_orchestrator_command_outbox_pending",
+          "legendFormat": "pending"
+        },
+        {
+          "expr": "beam_orchestrator_command_outbox_pending_with_error",
+          "legendFormat": "pending with error"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 }
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 39,
+  "tags": ["beam", "local", "runtime"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "Beam Runtime Operations",
+  "uid": "beam-runtime-operations",
+  "version": 1
+}

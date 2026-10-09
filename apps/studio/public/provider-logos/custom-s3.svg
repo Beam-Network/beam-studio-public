@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" viewBox="0 0 64 64" aria-label="Custom S3">
+  <title>Custom S3</title>
+  <rect width="64" height="64" rx="12" fill="#111827"/>
+  <path d="M17 21.5 32 13l15 8.5v17L32 47l-15-8.5v-17Z" fill="none" stroke="#f59e0b" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M21 24 32 30l11-6M32 30v13" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

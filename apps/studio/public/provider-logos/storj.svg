@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" viewBox="0 0 128 128" aria-label="Storj">
+  <title>Storj</title>
+  <rect width="128" height="128" rx="18" fill="#0055ff"/>
+  <circle cx="64" cy="64" r="34" fill="none" stroke="#ffffff" stroke-width="9"/>
+  <path d="M48 56c0-9 8-16 18-16 8 0 15 4 20 10M81 75c-4 8-11 13-20 13-8 0-15-4-20-10" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round"/>
+</svg>

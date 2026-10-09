@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" viewBox="0 0 128 128" aria-label="Cloudian">
+  <title>Cloudian</title>
+  <rect width="128" height="128" rx="18" fill="#0f172a"/>
+  <path d="M37 78h55c10 0 18-7 18-17s-8-17-18-17c-2 0-4 0-6 1-5-12-17-20-31-20-18 0-32 14-33 31-8 2-14 10-14 19 0 11 9 20 29 20Z" fill="#38bdf8"/>
+  <text x="64" y="88" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#ffffff">C</text>
+</svg>

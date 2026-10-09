@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" viewBox="0 0 128 128" aria-label="SeaweedFS">
+  <title>SeaweedFS</title>
+  <rect width="128" height="128" rx="18" fill="#06281f"/>
+  <path d="M64 105c-6-22-4-44 7-67M48 102c-10-18-13-39-9-62M80 101c7-19 10-36 7-58" fill="none" stroke="#22c55e" stroke-width="8" stroke-linecap="round"/>
+  <path d="M29 82c17 8 52 8 70 0" fill="none" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "declaration": true,
+    "declarationMap": true,
+    "allowJs": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.mjs", "drizzle.postgres.config.ts"]
+}

@@ -1,0 +1,299 @@
+x-app-env: &app-env
+  DATABASE_URL: postgres://beam:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/beam_studio
+  ORCHESTRATION_DATABASE_MODE: postgresql
+  NATS_URL: nats://nats:4222
+  NATS_TASK_SUBJECT: beam.workflow.tasks
+  NATS_TASK_STREAM: BEAM_WORKFLOW_TASKS
+  NATS_TASK_DLQ_SUBJECT: beam.workflow.tasks.dlq.permanent
+  REMOTE_EXECUTION_ENABLED: ${REMOTE_EXECUTION_ENABLED:-false}
+  REMOTE_EXECUTION_TASK_SUBJECT: ${REMOTE_EXECUTION_TASK_SUBJECT:-beam.workloads.studio.tasks}
+  REMOTE_EXECUTION_RESULT_SUBJECT: ${REMOTE_EXECUTION_RESULT_SUBJECT:-beam.workloads.studio.results}
+  REMOTE_EXECUTION_OWNER_ID: ${REMOTE_EXECUTION_OWNER_ID:-beam-orchestrator}
+  REMOTE_EXECUTION_LEASE_MS: ${REMOTE_EXECUTION_LEASE_MS:-3600000}
+  REMOTE_EXECUTION_SANDBOX_RUNTIME: ${REMOTE_EXECUTION_SANDBOX_RUNTIME:-wasi}
+  REMOTE_EXECUTION_ARTIFACT_URL_BASE: ${REMOTE_EXECUTION_ARTIFACT_URL_BASE:-}
+  BEAM_STUDIO_VERSION: "@BEAM_STUDIO_VERSION@"
+  BEAM_STUDIO_SECRET_KEY: ${BEAM_STUDIO_SECRET_KEY:?BEAM_STUDIO_SECRET_KEY is required}
+  BEAM_STUDIO_SECRET_KEY_RETIRED: ${BEAM_STUDIO_SECRET_KEY_RETIRED:-}
+  BEAM_STUDIO_SHARED_SECRET: ${BEAM_STUDIO_SHARED_SECRET:-}
+  BEAM_STUDIO_CONSUMER_ORGANIZATION_ID: ${BEAM_STUDIO_CONSUMER_ORGANIZATION_ID:-}
+  # Recovery lever, read by the api at start-up: makes this organization the
+  # instance owner when a claim went to the wrong one. Empty changes nothing.
+  BEAM_STUDIO_OWNER_ORGANIZATION_ID: ${BEAM_STUDIO_OWNER_ORGANIZATION_ID:-}
+  # Every HTTP listener (studio, api, mcp, orchestrator, workers) refuses a DNS
+  # name in Host that is not listed here; loopback names, IP literals and
+  # single-label service names are always accepted. The installer derives it
+  # from BEAM_STUDIO_PUBLIC_URL. See packages/shared/src/perimeter.ts.
+  BEAM_STUDIO_ALLOWED_HOSTS: ${BEAM_STUDIO_ALLOWED_HOSTS:-}
+  BEAM_STUDIO_SECURE_COOKIES: ${BEAM_STUDIO_SECURE_COOKIES:-true}
+  BEAM_STUDIO_DEV_SETTINGS_ENABLED: ${BEAM_STUDIO_DEV_SETTINGS_ENABLED:-false}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  BEAM_DEFAULT_BASE_URL: ${BEAM_DEFAULT_BASE_URL:-https://beamcore.b1m.ai}
+  BEAM_DEFAULT_COORDINATOR_URL: ${BEAM_DEFAULT_COORDINATOR_URL:-https://coordinator.b1m.ai}
+  BEAM_DEFAULT_REGISTRY_URL: ${BEAM_DEFAULT_REGISTRY_URL:-https://api.b1m.ai/registry}
+  BEAM_DEFAULT_NATS_URL: ${BEAM_DEFAULT_NATS_URL:-tls://orch-gateway.b1m.ai:4222}
+  BEAM_ENV: ${BEAM_ENV:-prod}
+  BEAM_STUDIO_API_URL: http://api:8787
+  BEAM_AUTH_URL: ${BEAM_AUTH_URL:-https://auth.b1m.ai}
+  BEAM_API_URL: ${BEAM_API_URL:-https://api.b1m.ai}
+  BEAM_ACTION_REGISTRY_URL: ${BEAM_ACTION_REGISTRY_URL:-https://api.b1m.ai/registry}
+  NEXT_PUBLIC_CONSOLE_URL: ${NEXT_PUBLIC_CONSOLE_URL:-https://console.b1m.ai}
+  NEXT_PUBLIC_API_URL: http://localhost:8787
+  NEXT_PUBLIC_TRANSFER_STUDIO_URL: ${BEAM_STUDIO_PUBLIC_URL:-http://localhost:3004}
+
+x-worker-service: &worker-service
+  image: "@IMAGE_WORKER@"
+  environment: &worker-env
+    <<: *app-env
+    WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-3}
+    WORKER_FLEET_CONCURRENCY: ${WORKER_FLEET_CONCURRENCY:-9}
+    WORKER_ACTION_SCRATCH_DIR: /data/beam-worker-scratch
+    WORKER_ACTION_SCRATCH_MAX_BYTES: ${WORKER_ACTION_SCRATCH_MAX_BYTES:-10737418240}
+    WORKER_PROCESS_OWNERSHIP_DIR: ${WORKER_PROCESS_OWNERSHIP_DIR:-/data/beam-action-ownership}
+    WORKER_TRUSTED_NODE_ACTION_PACKAGES: ${WORKER_TRUSTED_NODE_ACTION_PACKAGES:-@beam/transfer,@beam/room-transfer}
+    WORKER_TRUSTED_NODE_ALLOWED_NETWORK: ${WORKER_TRUSTED_NODE_ALLOWED_NETWORK:-orch-gateway.b1m.ai:4222}
+    WORKER_OBSERVABILITY_BIND_HOST: 0.0.0.0
+  volumes:
+    - beam-studio-data:/data
+    - /etc/machine-id:/etc/machine-id:ro
+  depends_on:
+    postgres:
+      condition: service_healthy
+    nats:
+      condition: service_started
+    orchestrator:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  studio:
+    image: "@IMAGE_STUDIO@"
+    environment:
+      <<: *app-env
+      HOST: 0.0.0.0
+      PORT: 3004
+      # VITE_STUDIO_API_URL is inlined by Vite at build time; only the
+      # proxy target is a runtime setting.
+      STUDIO_API_PROXY_TARGET: http://api:8787
+    ports:
+      - "${STUDIO_BIND_ADDRESS:-0.0.0.0}:${STUDIO_PORT:-3004}:3004"
+    depends_on:
+      api:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:3004/health'').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    labels:
+      # Probed by the host updater once a release is up; see apps/updater.
+      beam.studio.health-url: "http://127.0.0.1:${STUDIO_PORT:-3004}/health"
+    restart: unless-stopped
+
+  api:
+    image: "@IMAGE_API@"
+    environment:
+      <<: *app-env
+      API_PORT: 8787
+      API_BIND_HOST: 0.0.0.0
+      # Browser sessions live on the data volume so an update does not sign everyone out.
+      BEAM_STUDIO_AUTH_STORE_PATH: /data/oauth-session.json
+      ORCHESTRATOR_URL: http://orchestrator:8788
+      STUDIO_CORS_ORIGIN: ${BEAM_STUDIO_PUBLIC_URL:-http://localhost:3004}
+      BEAM_UPDATER_SOCKET_PATH: ${BEAM_UPDATER_SOCKET_PATH:-/run/beam-studio/updater.sock}
+      BEAM_STUDIO_UPDATE_MODE: ${BEAM_STUDIO_UPDATE_MODE:-managed}
+    ports:
+      - "${API_BIND_ADDRESS:-127.0.0.1}:8787:8787"
+    volumes:
+      - beam-studio-data:/data
+      # The updater socket's DIRECTORY, mounted at the same path, never the
+      # socket file itself. After a host reboot dockerd restarts this container
+      # before beam-updater.service has created the socket. A file bind then
+      # made Docker create a directory where the socket belongs: the container
+      # failed ("not a directory") and the updater refused to replace it, so
+      # neither came back. `bind.create_host_path: false` is no better: Docker
+      # then refuses to create or start the container while the socket is
+      # missing. A directory bind always starts; the API answers
+      # `updater_unavailable` until the updater creates the socket inside it.
+      # Read-only: connecting to a socket needs no write access to the mount,
+      # and the API has no business creating or removing files beside it.
+      # See docs/self-update.md, "Host reboot".
+      - type: bind
+        source: ${BEAM_UPDATER_SOCKET_DIR:-/run/beam-studio}
+        target: ${BEAM_UPDATER_SOCKET_DIR:-/run/beam-studio}
+        read_only: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:8787/health'').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    labels:
+      beam.studio.health-url: "http://127.0.0.1:8787/health"
+    restart: unless-stopped
+
+  mcp:
+    image: "@IMAGE_MCP@"
+    environment:
+      <<: *app-env
+      MCP_SERVER_HOST: 0.0.0.0
+      MCP_SERVER_PORT: 8766
+      MCP_SERVER_URL: ${BEAM_STUDIO_MCP_PUBLIC_URL:-http://localhost:8766}/mcp
+      MCP_CORS_ORIGINS: ${BEAM_STUDIO_PUBLIC_URL:-http://localhost:3004}
+      MCP_AUTH_RATE_LIMIT_PER_MINUTE: ${MCP_AUTH_RATE_LIMIT_PER_MINUTE:-60}
+      MCP_TOKEN_RATE_LIMIT_PER_MINUTE: ${MCP_TOKEN_RATE_LIMIT_PER_MINUTE:-120}
+    ports:
+      - "${MCP_BIND_ADDRESS:-127.0.0.1}:8766:8766"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:8766/health'').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    restart: unless-stopped
+
+  orchestrator:
+    image: "@IMAGE_ORCHESTRATOR@"
+    environment:
+      <<: *app-env
+      ORCHESTRATOR_PORT: 8788
+      ORCHESTRATOR_BIND_HOST: 0.0.0.0
+      ORCHESTRATOR_POLL_INTERVAL_MS: ${ORCHESTRATOR_POLL_INTERVAL_MS:-2000}
+      ORCHESTRATOR_BATCH_SIZE: ${ORCHESTRATOR_BATCH_SIZE:-25}
+      ORCHESTRATOR_TASK_MAX_ATTEMPTS: ${ORCHESTRATOR_TASK_MAX_ATTEMPTS:-3}
+    volumes:
+      - beam-studio-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:8788/health'').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    restart: unless-stopped
+
+  worker-1:
+    <<: *worker-service
+    environment:
+      <<: *worker-env
+      WORKER_NETWORK_ID: worker-1
+
+  worker-2:
+    <<: *worker-service
+    environment:
+      <<: *worker-env
+      WORKER_NETWORK_ID: worker-2
+
+  worker-3:
+    <<: *worker-service
+    environment:
+      <<: *worker-env
+      WORKER_NETWORK_ID: worker-3
+
+  room-consumer:
+    image: "@IMAGE_ROOM_CONSUMER@"
+    # Waits instead of exiting when the host's .env predates the shared secret
+    # (an install updated from Studio without rerunning the installer, which
+    # adds it). A consumer that exits would restart forever and fail the
+    # update's health wait, rolling back an otherwise good release. The rest
+    # of the command is the image's own entrypoint.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        if [ -z "$${BEAM_STUDIO_SHARED_SECRET}" ]; then
+          echo "room-consumer: BEAM_STUDIO_SHARED_SECRET is not set; rerun the Beam Studio installer to add it. Waiting." >&2
+          trap 'exit 0' TERM INT
+          while :; do sleep 3600 & wait $$!; done
+        fi
+        exec beam-tunnel-agent-dev \
+          --state-dir /var/lib/beam/state \
+          --socket /var/lib/beam/state/beam-agent.sock \
+          --room-inbox /var/lib/beam/inbox
+    environment:
+      # The api over the Compose network. Plain HTTP is accepted for exactly
+      # this origin, which the consumer also uses as its Studio URL.
+      BEAM_STUDIO_INTERNAL_URL: http://api:8787
+      BEAM_STUDIO_SHARED_SECRET: ${BEAM_STUDIO_SHARED_SECRET:-}
+      # Empty: the api uses the organization's default Beam environment, which
+      # is the deployment's own (BEAM_DEFAULT_*) unless dev settings are on.
+      BEAM_STUDIO_ENVIRONMENT_TEMPLATE: ${BEAM_STUDIO_ENVIRONMENT_TEMPLATE:-}
+      BEAM_STUDIO_MACHINE_NAME: Studio room consumer
+      # Live media viewing in the browser needs this UDP port reachable and
+      # the host's public IP advertised. Everything else works without them.
+      BEAM_STUDIO_MEDIA_PUBLIC_IP: ${BEAM_STUDIO_MEDIA_PUBLIC_IP:-}
+      BEAM_STUDIO_MEDIA_UDP_ADDR: ":${BEAM_STUDIO_MEDIA_UDP_PORT:-50400}"
+      BEAM_STUDIO_MEDIA_ICE_SERVERS: ${BEAM_STUDIO_MEDIA_ICE_SERVERS:-}
+    ports:
+      # Same port inside and out: the consumer advertises the port it listens on.
+      - "${BEAM_STUDIO_MEDIA_UDP_BIND_ADDRESS:-0.0.0.0}:${BEAM_STUDIO_MEDIA_UDP_PORT:-50400}:${BEAM_STUDIO_MEDIA_UDP_PORT:-50400}/udp"
+    volumes:
+      - beam-studio-room-consumer:/var/lib/beam
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: "@IMAGE_POSTGRES@"
+    environment:
+      POSTGRES_DB: beam_studio
+      POSTGRES_USER: beam
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - beam-studio-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U beam -d beam_studio"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    labels:
+      # Dumped by the host updater before an update that requires a backup.
+      beam.studio.backup: postgresql
+    restart: unless-stopped
+
+  nats:
+    image: "@IMAGE_NATS@"
+    command: ["-js", "-m", "8222", "--store_dir", "/data"]
+    volumes:
+      - beam-studio-nats:/data
+    restart: unless-stopped
+
+volumes:
+  beam-studio-data:
+    name: beam-studio-data
+  beam-studio-postgres:
+    name: beam-studio-postgres
+  beam-studio-nats:
+    name: beam-studio-nats
+  beam-studio-room-consumer:
+    name: beam-studio-room-consumer

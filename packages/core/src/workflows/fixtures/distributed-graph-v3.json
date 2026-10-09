@@ -1,0 +1,65 @@
+{
+  "version": "workflow-graph/v3",
+  "controls": [],
+  "edges": [{ "from": "prepare", "to": "transfer" }],
+  "distribution": {
+    "partitions": [
+      {
+        "id": "participants",
+        "members": {
+          "kind": "explicit",
+          "memberIds": ["member_a", "member_b", "member_c"]
+        },
+        "order": "declared"
+      }
+    ],
+    "steps": [
+      {
+        "stepId": "prepare",
+        "partitionId": "participants",
+        "placement": "room-member",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "payload",
+            "kind": "artifact",
+            "cardinality": "one",
+            "format": "application/octet-stream"
+          }
+        ]
+      },
+      {
+        "stepId": "transfer",
+        "partitionId": "participants",
+        "placement": "studio",
+        "inputs": [
+          {
+            "name": "payload",
+            "kind": "artifact",
+            "cardinality": "one",
+            "format": "application/octet-stream"
+          },
+          { "name": "source", "kind": "member-id", "cardinality": "one" },
+          {
+            "name": "recipients",
+            "kind": "member-id-list",
+            "cardinality": "many"
+          }
+        ],
+        "outputs": [],
+        "transfer": {
+          "topology": "ring",
+          "sourceInput": "source",
+          "recipientsInput": "recipients"
+        }
+      }
+    ],
+    "routes": [
+      {
+        "from": { "stepId": "prepare", "port": "payload" },
+        "to": { "stepId": "transfer", "port": "payload" },
+        "association": { "kind": "identity" }
+      }
+    ]
+  }
+}

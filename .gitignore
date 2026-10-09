@@ -1,0 +1,23 @@
+node_modules
+.DS_Store
+.turbo
+.next
+dist
+coverage
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+/data
+/apps/api/data
+/packages/action-runtime/native/
+__pycache__/
+*.pyc
+.tanstack/
+
+# Local Go build output
+/packages/action-runtime/process-guard/action-process-guard
+/apps/updater/beam-updater

@@ -1,0 +1,221 @@
+x-app-env: &app-env
+  DATABASE_URL: postgres://beam:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/beam_studio
+  ORCHESTRATION_DATABASE_MODE: postgresql
+  NATS_URL: nats://nats:4222
+  NATS_TASK_SUBJECT: beam.workflow.tasks
+  NATS_TASK_STREAM: BEAM_WORKFLOW_TASKS
+  NATS_TASK_DLQ_SUBJECT: beam.workflow.tasks.dlq.permanent
+  BEAM_STUDIO_SECRET_KEY: ${BEAM_STUDIO_SECRET_KEY:?BEAM_STUDIO_SECRET_KEY is required; generate one with `openssl rand -hex 32`}
+  BEAM_STUDIO_SECRET_KEY_RETIRED: ${BEAM_STUDIO_SECRET_KEY_RETIRED:-}
+  BEAM_STUDIO_SHARED_SECRET: ${BEAM_STUDIO_SHARED_SECRET:-}
+  BEAM_STUDIO_CONSUMER_ORGANIZATION_ID: ${BEAM_STUDIO_CONSUMER_ORGANIZATION_ID:-}
+  BEAM_STUDIO_SECURE_COOKIES: ${BEAM_STUDIO_SECURE_COOKIES:-false}
+  BEAM_STUDIO_DEV_SETTINGS_ENABLED: ${BEAM_STUDIO_DEV_SETTINGS_ENABLED:-false}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  BEAM_DEFAULT_BASE_URL: ${BEAM_DEFAULT_BASE_URL:-https://beamcore.b1m.ai}
+  BEAM_DEFAULT_COORDINATOR_URL: ${BEAM_DEFAULT_COORDINATOR_URL:-https://coordinator.b1m.ai}
+  BEAM_DEFAULT_REGISTRY_URL: ${BEAM_DEFAULT_REGISTRY_URL:-https://api.b1m.ai/registry}
+  BEAM_DEFAULT_NATS_URL: ${BEAM_DEFAULT_NATS_URL:-tls://orch-gateway.b1m.ai:4222}
+  BEAM_ENV: ${BEAM_ENV:-prod}
+  BEAM_AUTH_URL: ${BEAM_AUTH_URL:-https://auth.b1m.ai}
+  BEAM_API_URL: ${BEAM_API_URL:-https://api.b1m.ai}
+  BEAM_ACTION_REGISTRY_URL: ${BEAM_ACTION_REGISTRY_URL:-https://api.b1m.ai/registry}
+  NEXT_PUBLIC_CONSOLE_URL: ${NEXT_PUBLIC_CONSOLE_URL:-http://localhost:3001}
+  NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8787}
+  NEXT_PUBLIC_TRANSFER_STUDIO_URL: ${NEXT_PUBLIC_TRANSFER_STUDIO_URL:-http://localhost:3004}
+
+x-worker-service: &worker-service
+  image: beam-studio-worker
+  build:
+    context: .
+    dockerfile: apps/worker/Dockerfile
+  env_file:
+    - ${BEAM_STUDIO_ENV_FILE:-.env.example}
+  environment: &worker-env
+    <<: *app-env
+    WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-3}
+    WORKER_FLEET_CONCURRENCY: ${WORKER_FLEET_CONCURRENCY:-9}
+    WORKER_ACTION_SCRATCH_DIR: ${WORKER_ACTION_SCRATCH_DIR:-/data/beam-worker-scratch}
+    WORKER_ACTION_SCRATCH_MAX_BYTES: ${WORKER_ACTION_SCRATCH_MAX_BYTES:-10737418240}
+    WORKER_PROCESS_OWNERSHIP_DIR: ${WORKER_PROCESS_OWNERSHIP_DIR:-/data/beam-action-ownership}
+    WORKER_OBSERVABILITY_BIND_HOST: 0.0.0.0
+  volumes:
+    - beam-studio-data:/data
+    - /etc/machine-id:/etc/machine-id:ro
+  depends_on:
+    postgres:
+      condition: service_healthy
+    nats:
+      condition: service_started
+    orchestrator:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  studio:
+    image: beam-studio-studio
+    build:
+      context: .
+      dockerfile: apps/studio/Dockerfile
+      args:
+        # Inlined into the browser bundle at build time.
+        VITE_STUDIO_API_URL: ${VITE_STUDIO_API_URL:-http://localhost:8787}
+    env_file:
+      - ${BEAM_STUDIO_ENV_FILE:-.env.example}
+    environment:
+      <<: *app-env
+      HOST: 0.0.0.0
+      PORT: 3004
+      STUDIO_API_PROXY_TARGET: ${STUDIO_API_PROXY_TARGET:-http://api:8787}
+    ports:
+      - "3004:3004"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api:
+    image: beam-studio-api
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    env_file:
+      - ${BEAM_STUDIO_ENV_FILE:-.env.example}
+    environment:
+      <<: *app-env
+      API_PORT: 8787
+      API_BIND_HOST: 0.0.0.0
+      # Browser sessions live on the data volume so an update does not sign everyone out.
+      BEAM_STUDIO_AUTH_STORE_PATH: /data/oauth-session.json
+      ORCHESTRATOR_URL: http://orchestrator:8788
+      STUDIO_CORS_ORIGIN: http://localhost:3004
+    ports:
+      - "8787:8787"
+    volumes:
+      - beam-studio-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:8787/health'').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  mcp:
+    image: beam-studio-mcp
+    build:
+      context: .
+      dockerfile: apps/mcp-server/Dockerfile
+    env_file:
+      - ${BEAM_STUDIO_ENV_FILE:-.env.example}
+    environment:
+      <<: *app-env
+      MCP_SERVER_HOST: 0.0.0.0
+      MCP_SERVER_PORT: 8766
+      MCP_SERVER_URL: ${MCP_SERVER_URL:-http://localhost:8766/mcp}
+      MCP_CORS_ORIGINS: ${MCP_CORS_ORIGINS:-http://localhost:3004}
+    ports:
+      - "8766:8766"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:8766/health'').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  orchestrator:
+    image: beam-studio-orchestrator
+    build:
+      context: .
+      dockerfile: apps/orchestrator/Dockerfile
+    env_file:
+      - ${BEAM_STUDIO_ENV_FILE:-.env.example}
+    environment:
+      <<: *app-env
+      ORCHESTRATOR_PORT: 8788
+      ORCHESTRATOR_BIND_HOST: 0.0.0.0
+      ORCHESTRATOR_POLL_INTERVAL_MS: ${ORCHESTRATOR_POLL_INTERVAL_MS:-2000}
+      ORCHESTRATOR_BATCH_SIZE: ${ORCHESTRATOR_BATCH_SIZE:-25}
+      ORCHESTRATOR_TASK_MAX_ATTEMPTS: ${ORCHESTRATOR_TASK_MAX_ATTEMPTS:-3}
+    ports:
+      - "8788:8788"
+    volumes:
+      - beam-studio-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:8788/health'').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  worker-1:
+    <<: *worker-service
+    environment:
+      <<: *worker-env
+      WORKER_NETWORK_ID: worker-1
+
+  worker-2:
+    <<: *worker-service
+    environment:
+      <<: *worker-env
+      WORKER_NETWORK_ID: worker-2
+
+  worker-3:
+    <<: *worker-service
+    environment:
+      <<: *worker-env
+      WORKER_NETWORK_ID: worker-3
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: beam_studio
+      POSTGRES_USER: beam
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - beam-studio-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U beam -d beam_studio"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  nats:
+    image: nats:2-alpine
+    command: ["-js", "-m", "8222", "--store_dir", "/data"]
+    volumes:
+      - beam-studio-nats:/data
+    restart: unless-stopped
+
+volumes:
+  beam-studio-data:
+  beam-studio-postgres:
+  beam-studio-nats:

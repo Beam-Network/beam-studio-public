@@ -1,0 +1,60 @@
+[
+  {
+    "file": "v1-legacy.valid.json",
+    "valid": true,
+    "checksum": "5ccae941d7a9367411f52bd64cc2415d752626f5ab47d7881012ffa4fc63c2f8"
+  },
+  {
+    "file": "v2-single.valid.json",
+    "valid": true
+  },
+  {
+    "file": "v2-distributed.valid.json",
+    "valid": true
+  },
+  {
+    "file": "v2-unknown-capability.invalid.json",
+    "valid": false,
+    "error": "Unknown mandatory action capability"
+  },
+  {
+    "file": "v2-port-mismatch.invalid.json",
+    "valid": false,
+    "error": "unsupported cardinality"
+  },
+  {
+    "file": "v2-unsafe-retry.invalid.json",
+    "valid": false,
+    "error": "Non-idempotent external effects"
+  },
+  {
+    "file": "v2-partition-equivalence.invalid.json",
+    "valid": false,
+    "error": "single-task equivalence"
+  },
+  {
+    "file": "v2-unknown-field.invalid.json",
+    "valid": false,
+    "error": "unsupported field"
+  },
+  {
+    "file": "v2-legacy-artifact-capability.invalid.json",
+    "valid": false,
+    "error": "action-artifact-ports/v1"
+  },
+  {
+    "file": "v2-format-list.invalid.json",
+    "valid": false,
+    "error": "unsupported field"
+  },
+  {
+    "file": "v2-oversized-artifact.invalid.json",
+    "valid": false,
+    "error": "bounded action-artifact-ports/v1"
+  },
+  {
+    "file": "v2-unknown-reservation.invalid.json",
+    "valid": false,
+    "error": "execution.requiredResources contains unsupported field"
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "image": "ghcr.io/beam-network/beam-studio-runtime-room-consumer",
+  "digest": "sha256:3fb8d9548c76a1e71231cfe5e8ccc27e5569ea108f06767a55a0dc97a0f332c2",
+  "version": "v0.0.0-prod.r0000000039.700f6c216a82",
+  "commit": "700f6c216a82c7310479b3a96708f32367182a05"
+}

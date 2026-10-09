@@ -1,0 +1,70 @@
+{
+  "name": "@example/normalize",
+  "version": "2.0.0",
+  "apiVersion": "workflow-actions/v2",
+  "runtime": {
+    "placements": [
+      "local-workers",
+      "room-members"
+    ],
+    "defaultPlacement": "local-workers"
+  },
+  "execution": {
+    "runtime": "node",
+    "isolation": "sandboxed-esm",
+    "taskMode": "single-worker",
+    "capabilityContract": "action-execution/v1",
+    "minRuntimeVersion": "22.0.0",
+    "requiredCapabilities": [
+      "action-execution/v1",
+      "action-artifact-ports/v1",
+      "action-process-ownership/v1",
+      "runtime:node"
+    ],
+    "requiredResources": {
+      "capacitySlots": 1,
+      "leaseSeconds": 60
+    }
+  },
+  "inputs": {
+    "source": {
+      "type": "artifact",
+      "cardinality": "one",
+      "format": "application/json",
+      "required": true
+    }
+  },
+  "outputs": {
+    "result": {
+      "type": "artifact",
+      "cardinality": "one",
+      "format": "application/json",
+      "required": true
+    }
+  },
+  "permissions": [
+    "storage:read",
+    "storage:write"
+  ],
+  "contracts": {
+    "resources": {
+      "cpuMillis": 1000,
+      "memoryMiB": 256,
+      "timeoutSeconds": 60,
+      "maxInputBytes": 32768,
+      "maxOutputBytes": 32768,
+      "maxArtifactBytes": 32768,
+      "maxArtifacts": 16
+    },
+    "recovery": {
+      "retry": "idempotent",
+      "externalEffects": "none"
+    },
+    "computation": {
+      "semanticId": "example.normalize/v1"
+    },
+    "futureRequirement": {
+      "mandatory": true
+    }
+  }
+}

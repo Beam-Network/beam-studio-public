@@ -1,0 +1,40 @@
+{
+  "name": "@beam-studio/db",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate --config drizzle.postgres.config.ts",
+    "db:migrate": "node scripts/apply-postgres-migrations.mjs",
+    "db:pg:generate": "drizzle-kit generate --config drizzle.postgres.config.ts",
+    "db:pg:migrate": "node scripts/apply-postgres-migrations.mjs",
+    "db:pg:verify-migrations": "node scripts/verify-postgres-migrations.mjs",
+    "db:studio:init": "node scripts/apply-beam-studio-target.mjs",
+    "db:studio:verify": "node scripts/verify-beam-studio-target.mjs"
+  },
+  "dependencies": {
+    "@beam-studio/core": "workspace:*",
+    "@beam-studio/vault": "workspace:*",
+    "drizzle-orm": "^0.38.3",
+    "pg": "^8.21.0",
+    "@beam-studio/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.30.1",
+    "typescript": "^5.7.2"
+  }
+}

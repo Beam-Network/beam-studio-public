@@ -1,0 +1,38 @@
+{
+  "name": "@beam-studio/api",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_OPTIONS=--conditions=development tsx watch --env-file=../../.env.local src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node --env-file-if-exists=../../.env.local dist/main.js",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "BEAM_STUDIO_SECRET_KEY=beam-studio-test-key-0000000000000000 NODE_OPTIONS=--conditions=development tsx --test $(find src -name \"*.test.ts\" -o -name \"*.test.mjs\" | sort)",
+    "config:check": "node ../../scripts/check-room-service-config-surface.mjs && node --conditions=development --import tsx scripts/validate-deployment-config.ts",
+    "backfill:credential-metadata": "NODE_OPTIONS=--conditions=development tsx --env-file-if-exists=../../.env.local scripts/backfill-credential-metadata.ts",
+    "instance:claim-code": "NODE_OPTIONS=--conditions=development tsx --env-file-if-exists=../../.env.local src/ops/instance-claim-code-cli.ts",
+    "instance:revoke-key": "NODE_OPTIONS=--conditions=development tsx --env-file-if-exists=../../.env.local src/ops/instance-key-revoke-cli.ts",
+    "vault:rotate": "NODE_OPTIONS=--conditions=development tsx --env-file-if-exists=../../.env.local src/ops/rotate-vault-ciphertext-cli.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1057.0",
+    "@beam-network/sdk": "0.7.0",
+    "@beam-studio/action-runtime": "workspace:*",
+    "@beam-studio/core": "workspace:*",
+    "@beam-studio/db": "workspace:*",
+    "@beam-studio/shared": "workspace:*",
+    "@beam-studio/telemetry": "workspace:*",
+    "@beam-studio/vault": "workspace:*",
+    "@fastify/websocket": "^11.3.0",
+    "fastify": "^5.10.0",
+    "pino": "^9.5.0",
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

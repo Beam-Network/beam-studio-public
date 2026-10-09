@@ -1,0 +1,407 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-geist-sans: "Geist";
+    --font-geist-mono: "Geist Mono";
+    /* Retro-futuristic display face. Falls back to the mono metrics so titles
+       still read as console type when the pixel face is unavailable. */
+    --font-geist-pixel: "Geist Pixel", "Geist Mono", ui-monospace, monospace;
+
+    /* Daylight console: white page/canvas, neutral off-white panels, then stronger
+       inset and interactive fills. Keep each surface level distinct:
+       background 100% > popover 99% > card 97% > muted 94% > secondary 88%.
+       The dark theme below is the primary art direction. */
+    --background: 0 0% 100%;
+    --foreground: 200 22% 12%;
+    --card: 0 0% 97%;
+    --card-foreground: 200 22% 12%;
+    --popover: 0 0% 99%;
+    --popover-foreground: 200 22% 12%;
+    /* One green per theme for actions, success, charts and focus.
+       Light mode uses the brand hue at a readable lightness. */
+    --primary: 159.3 95.3% 23%;
+    --primary-foreground: 0 0% 100%;
+    /* Neutral fills: controls and selected rows share the same solid gray. */
+    --secondary: 0 0% 88%;
+    --secondary-foreground: var(--foreground);
+    --muted: 0 0% 94%;
+    --muted-foreground: 200 9% 35%;
+    --accent: var(--secondary);
+    --accent-foreground: var(--secondary-foreground);
+    --destructive: 347 74% 38%;
+    --destructive-foreground: 0 0% 100%;
+    --success: var(--primary);
+    --success-foreground: var(--primary-foreground);
+    --warning: 34 92% 27%;
+    --warning-foreground: 0 0% 100%;
+    --running: 190 92% 24%;
+    --running-foreground: 0 0% 100%;
+    --info: 205 88% 31%;
+    --info-foreground: 0 0% 100%;
+    --brand: var(--primary);
+    --brand-foreground: var(--primary-foreground);
+    --border: 0 0% 78%;
+    --input: 0 0% 48%;
+    --ring: var(--primary);
+    --sidebar-background: 0 0% 95.5%;
+    --sidebar-foreground: 200 20% 16%;
+    --sidebar-primary: 200 22% 12%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: var(--secondary);
+    --sidebar-accent-foreground: var(--secondary-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--primary);
+    /* Shared shape scale. The default surface is concentric around a control:
+       outer radius = inner radius + distance between the two surfaces. */
+    --radius-badge: 0.25rem;
+    --radius-control-compact: 0.375rem;
+    --radius-control: 0.5rem;
+    --radius-surface-inset: 0.25rem;
+    --radius-surface: calc(
+      var(--radius-control) + var(--radius-surface-inset)
+    );
+    /* Compatibility token for primitives that still consume --radius. */
+    --radius: var(--radius-control);
+    --chart-completed: var(--success);
+    --chart-failed: 347 74% 48%;
+    --chart-other: 200 10% 48%;
+    --chart-track: var(--secondary);
+  }
+
+  .dark {
+    /* True-black neutral base with the same green for actions and success. */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 92%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 92%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 92%;
+    --primary: 159.3 95.3% 49.6%;
+    --primary-foreground: 158 45% 6%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 92%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 94%;
+    --destructive: 347 82% 62%;
+    --destructive-foreground: 350 40% 6%;
+    --success: var(--primary);
+    --success-foreground: var(--primary-foreground);
+    --warning: 38 94% 56%;
+    --warning-foreground: 36 45% 7%;
+    --running: 187 92% 52%;
+    --running-foreground: 190 45% 6%;
+    --info: 205 90% 60%;
+    --info-foreground: 205 45% 7%;
+    --brand: var(--primary);
+    --brand-foreground: var(--primary-foreground);
+    --border: 0 0% 15%;
+    --input: 0 0% 45%;
+    --ring: var(--primary);
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 88%;
+    --sidebar-primary: 0 0% 92%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: var(--secondary);
+    --sidebar-accent-foreground: var(--secondary-foreground);
+    --sidebar-border: 0 0% 13%;
+    --sidebar-ring: var(--primary);
+    --chart-completed: var(--success);
+    --chart-failed: 347 82% 62%;
+    --chart-other: 0 0% 56%;
+    --chart-track: 0 0% 16%;
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  /* Native fields need a stronger boundary than decorative surface dividers.
+     Utilities can still override this for borderless or invalid fields. */
+  input,
+  textarea,
+  select,
+  [role="combobox"] {
+    @apply border-input;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    @apply text-muted-foreground opacity-100;
+  }
+
+  body {
+    @apply overflow-hidden bg-background text-foreground antialiased;
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings:
+      "cv01",
+      "cv03",
+      "ss03";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Large titles + branding: pixel display face, uppercase, wide tracking. */
+  h1 {
+    font-family: var(--font-geist-pixel);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  h2,
+  h3,
+  h4 {
+    letter-spacing: -0.012em;
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family:
+      var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  }
+
+  /* Navigation and action labels inherit Sans. Reserve Mono for technical
+     values, explicit font-mono content and console section labels. */
+  [data-sidebar="group-label"],
+  kbd,
+  [class*="tabular-nums"] {
+    font-family:
+      var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary) / 0.28);
+    color: hsl(var(--foreground));
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.6);
+    background-clip: content-box;
+  }
+}
+
+@layer components {
+  /* Theme React Flow's defaults as well as explicitly styled workflow edges. */
+  .react-flow {
+    --xy-edge-stroke: hsl(var(--muted-foreground));
+    --xy-edge-stroke-width: 1.5;
+    --xy-edge-stroke-selected: hsl(var(--primary));
+    --xy-connectionline-stroke: hsl(var(--primary));
+    --xy-connectionline-stroke-width: 2;
+  }
+
+  [data-overflow-scroll-text][data-faded="true"] {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      rgb(0 0 0) 0,
+      rgb(0 0 0) calc(100% - 1.25rem),
+      rgb(0 0 0 / 0.45) 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      rgb(0 0 0) 0,
+      rgb(0 0 0) calc(100% - 1.25rem),
+      rgb(0 0 0 / 0.45) 100%
+    );
+  }
+
+  [data-overflow-scroll-trigger]:hover [data-overflow-scroll-text],
+  [data-overflow-scroll-trigger]:focus-within [data-overflow-scroll-text] {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  [data-overflow-scroll-text-content] {
+    animation: none;
+    transform: translateX(0);
+  }
+
+  [data-overflow-scroll-trigger]:hover [data-overflow-scroll-text-content],
+  [data-overflow-scroll-trigger]:focus-within
+    [data-overflow-scroll-text-content] {
+    animation: overflow-scroll-text var(--overflow-scroll-duration) linear
+      forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-overflow-scroll-trigger]:hover [data-overflow-scroll-text-content],
+    [data-overflow-scroll-trigger]:focus-within
+      [data-overflow-scroll-text-content] {
+      animation: none;
+      transform: none;
+    }
+  }
+
+  @keyframes overflow-scroll-text {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(var(--overflow-scroll-shift));
+    }
+  }
+
+  /* Uppercase micro-labels get console spacing. */
+  [data-sidebar="group-label"] {
+    @apply uppercase tracking-[0.14em];
+  }
+
+  /* Selected navigation uses the same green as actions and success states. */
+  [data-sidebar="menu-button"][data-active="true"] > svg {
+    color: hsl(var(--success));
+  }
+
+  [data-collapsible="icon"] [data-sidebar="content"],
+  [data-collapsible="icon"] [data-sidebar="group"],
+  [data-collapsible="icon"] [data-sidebar="menu"] {
+    @apply items-center;
+  }
+
+  [data-collapsible="icon"] [data-sidebar="group-content"],
+  [data-collapsible="icon"] [data-sidebar="menu"] {
+    @apply w-auto;
+  }
+
+  [data-collapsible="icon"] [data-sidebar="menu-button"] {
+    @apply size-10 justify-center px-0;
+  }
+
+  [data-collapsible="icon"] [data-sidebar="menu-button"] > span {
+    @apply sr-only;
+  }
+
+  /* Live status pulse — reserved for genuinely active indicators. */
+  .status-live {
+    animation: status-live 1.6s ease-in-out infinite;
+  }
+
+  @keyframes status-live {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  .sidebar-level-forward {
+    animation: sidebar-level-forward 180ms cubic-bezier(0.2, 0, 0, 1) both;
+  }
+
+  .sidebar-level-back {
+    animation: sidebar-level-back 180ms cubic-bezier(0.2, 0, 0, 1) both;
+  }
+
+  @keyframes sidebar-level-forward {
+    from {
+      opacity: 0;
+      transform: translateX(18px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes sidebar-level-back {
+    from {
+      opacity: 0;
+      transform: translateX(-18px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar-level-forward,
+    .sidebar-level-back,
+    .status-live {
+      animation: none;
+    }
+  }
+
+  .workflow-graph .react-flow__controls {
+    @apply overflow-hidden border border-border bg-card shadow-none;
+  }
+
+  .workflow-graph .react-flow__controls-button {
+    @apply border-b border-border bg-card text-foreground;
+  }
+
+  .workflow-graph .react-flow__controls-button:hover {
+    @apply bg-secondary text-secondary-foreground;
+  }
+
+  .workflow-graph .react-flow__controls-button svg {
+    @apply fill-current;
+  }
+
+  .workflow-graph .react-flow__controls-button:last-child {
+    @apply border-b-0;
+  }
+
+  .workflow-graph .react-flow__minimap {
+    @apply overflow-hidden border border-border bg-card shadow-none;
+  }
+}
+
+/* Switch workflow navigation based on available header width, including sidebar state. */
+.workflow-header {
+  container-type: inline-size;
+}
+
+.workflow-header-tabs {
+  display: none;
+}
+
+.workflow-header-page-menu {
+  display: flex;
+}
+
+@container (min-width: 56rem) {
+  /* Shares the width with the breadcrumb to keep the tabs centred, but never
+     shrinks below its buttons: they would spill over the tabs. The breadcrumb
+     truncates instead. */
+  .workflow-header > :last-child {
+    flex: 1 1 0%;
+    min-width: max-content;
+  }
+
+  .workflow-header-tabs {
+    display: flex;
+  }
+
+  .workflow-header-page-menu {
+    display: none;
+  }
+}

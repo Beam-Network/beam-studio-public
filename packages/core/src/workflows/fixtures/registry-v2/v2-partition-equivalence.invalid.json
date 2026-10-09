@@ -1,0 +1,75 @@
+{
+  "name": "@example/normalize-batch",
+  "version": "2.0.0",
+  "apiVersion": "workflow-actions/v2",
+  "runtime": {
+    "placements": [
+      "room-members"
+    ]
+  },
+  "execution": {
+    "runtime": "node",
+    "isolation": "sandboxed-esm",
+    "taskMode": "distributed-workers",
+    "distribution": {
+      "mode": "partitioned-reduce",
+      "inputKey": "sources",
+      "outputKey": "results",
+      "preferredItemsPerTask": 10,
+      "maxParallelism": 8
+    },
+    "capabilityContract": "action-execution/v1",
+    "minRuntimeVersion": "22.0.0",
+    "requiredCapabilities": [
+      "action-execution/v1",
+      "action-artifact-ports/v1",
+      "action-process-ownership/v1",
+      "runtime:node",
+      "partitioned-reduce/v1"
+    ],
+    "requiredResources": {
+      "capacitySlots": 1,
+      "leaseSeconds": 60
+    }
+  },
+  "inputs": {
+    "sources": {
+      "type": "artifact",
+      "cardinality": "many",
+      "format": "application/json",
+      "required": true
+    }
+  },
+  "outputs": {
+    "results": {
+      "type": "artifact",
+      "cardinality": "many",
+      "format": "application/json",
+      "required": true
+    }
+  },
+  "contracts": {
+    "resources": {
+      "cpuMillis": 2000,
+      "memoryMiB": 512,
+      "timeoutSeconds": 120,
+      "maxInputBytes": 32768,
+      "maxOutputBytes": 32768,
+      "maxArtifactBytes": 32768,
+      "maxArtifacts": 16
+    },
+    "recovery": {
+      "retry": "idempotent",
+      "externalEffects": "none"
+    },
+    "computation": {
+      "semanticId": "example.normalize-batch/v1",
+      "partitioning": {
+        "inputPort": "sources",
+        "outputPort": "results",
+        "aggregation": "ordered-concatenate",
+        "equivalentToSingleTask": false
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@beam-studio/orchestrator",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_OPTIONS=--conditions=development tsx watch --env-file=../../.env.local src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node --env-file-if-exists=../../.env.local dist/main.js",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "BEAM_STUDIO_SECRET_KEY=beam-studio-test-key-0000000000000000 NODE_OPTIONS=--conditions=development tsx --test $(find src -name \"*.test.ts\" -o -name \"*.test.mjs\" | sort)"
+  },
+  "dependencies": {
+    "@beam-studio/core": "workspace:*",
+    "@beam-studio/db": "workspace:*",
+    "@beam-studio/shared": "workspace:*",
+    "@beam-studio/telemetry": "workspace:*",
+    "fastify": "^5.10.0",
+    "nats": "^2.29.3",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

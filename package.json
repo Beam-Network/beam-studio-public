@@ -1,0 +1,40 @@
+{
+  "name": "beam-studio",
+  "license": "MIT",
+  "version": "1.0.16",
+  "private": true,
+  "packageManager": "pnpm@11.5.0",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "nodemon --signal SIGTERM --watch package.json --watch pnpm-lock.yaml --watch turbo.json --exec \"turbo dev\"",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "test:runtime-reliability": "NODE_OPTIONS=--conditions=development pnpm --filter @beam-studio/orchestrator exec tsx --test ../../tests/runtime-reliability.integration.ts",
+    "test:agent-control": "NODE_OPTIONS=--conditions=development pnpm --filter @beam-studio/api exec tsx --test ../../tests/agent-control.integration.ts",
+    "format": "prettier --write .",
+    "dev:studio": "nodemon --signal SIGTERM --watch apps/studio --watch packages --ignore apps/studio/.output --ext ts,tsx,js,mjs,json,css --exec \"pnpm --filter @beam-studio/studio dev\"",
+    "dev:api": "nodemon --signal SIGTERM --watch apps/api/src --watch apps/api/package.json --watch packages --ext ts,tsx,js,mjs,json --exec \"pnpm --filter @beam-studio/api dev\"",
+    "dev:studio-api": "nodemon --signal SIGTERM --watch apps/studio/src --watch apps/api/src --watch apps/studio/package.json --watch apps/api/package.json --ext ts,tsx,json,css --exec \"pnpm -r --parallel --filter @beam-studio/studio --filter @beam-studio/api run dev\"",
+    "dev:stack": "node --env-file-if-exists=.env.local scripts/dev-studio-stack.mjs",
+    "dev:orchestrator": "nodemon --signal SIGTERM --watch apps/orchestrator/src --watch apps/orchestrator/package.json --watch packages --ext ts,tsx,js,mjs,json --exec \"pnpm --filter @beam-studio/orchestrator dev\"",
+    "dev:worker": "nodemon --signal SIGTERM --watch apps/worker/src --watch apps/worker/package.json --watch packages --ext ts,tsx,js,mjs,json --exec \"pnpm --filter @beam-studio/worker dev\"",
+    "dev:mcp": "nodemon --signal SIGTERM --watch apps/mcp-server/src --watch apps/mcp-server/package.json --watch packages --ext ts,tsx,js,mjs,json --exec \"pnpm --filter @beam-studio/mcp-server dev\"",
+    "dev:desktop": "nodemon --signal SIGTERM --watch apps/desktop/src --watch apps/desktop/package.json --watch packages --ext ts,tsx,js,mjs,json,css --exec \"pnpm --filter @beam-studio/desktop dev\"",
+    "studio:dev": "pnpm dev:studio",
+    "api:dev": "pnpm dev:api",
+    "studio-api:dev": "pnpm dev:studio-api",
+    "studio-stack:dev": "pnpm dev:stack",
+    "orchestrator:dev": "pnpm dev:orchestrator",
+    "worker:dev": "pnpm dev:worker",
+    "mcp:dev": "pnpm dev:mcp",
+    "desktop:dev": "pnpm dev:desktop"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  }
+}

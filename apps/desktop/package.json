@@ -1,0 +1,23 @@
+{
+  "name": "@beam-studio/desktop",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo \"Desktop shell is scaffolded; add electron when packaging starts.\"",
+    "build": "tsc -p tsconfig.json",
+    "start": "echo \"Desktop shell is scaffolded; add electron when packaging starts.\"",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@beam-studio/core": "workspace:*",
+    "@beam-studio/db": "workspace:*",
+    "@beam-studio/ui": "workspace:*",
+    "@beam-studio/vault": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  },
+  "main": "dist/main/index.js"
+}

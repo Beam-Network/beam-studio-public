@@ -1,0 +1,1125 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-09-01",
+  "profiles": [
+    {
+      "id": "custom-s3",
+      "aliases": [
+        "s3-compatible",
+        "custom"
+      ],
+      "name": "Custom S3-compatible",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/custom-s3.svg",
+      "website_url": "https://aws.amazon.com/s3/",
+      "docs_url": "https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html",
+      "endpoint": {
+        "required": true,
+        "force_path_style": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "force_path_style"
+        ]
+      },
+      "notes": [
+        "Use this profile for self-hosted or unlisted S3-compatible endpoints."
+      ]
+    },
+    {
+      "id": "s3",
+      "aliases": [
+        "amazon-s3",
+        "aws-s3",
+        "amazon"
+      ],
+      "name": "Amazon S3",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/s3.svg",
+      "website_url": "https://aws.amazon.com/s3/",
+      "docs_url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html",
+      "region": {
+        "default": "us-east-1"
+      },
+      "endpoint": {
+        "required": false
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "endpoint_url"
+        ]
+      }
+    },
+    {
+      "id": "r2",
+      "aliases": [
+        "cloudflare-r2",
+        "cloudflare"
+      ],
+      "name": "Cloudflare R2",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/r2.svg",
+      "website_url": "https://www.cloudflare.com/products/r2/",
+      "docs_url": "https://developers.cloudflare.com/r2/api/s3/",
+      "region": {
+        "default": "auto"
+      },
+      "endpoint": {
+        "required": false,
+        "template": "https://{account_id}.r2.cloudflarestorage.com",
+        "template_variables": [
+          "account_id"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key"
+        ],
+        "optional": [
+          "account_id",
+          "endpoint_url"
+        ]
+      }
+    },
+    {
+      "id": "hippius",
+      "aliases": [
+        "hippi",
+        "hippius-s3"
+      ],
+      "name": "Hippius",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/hippius.svg",
+      "region": {
+        "default": "decentralized"
+      },
+      "endpoint": {
+        "required": false,
+        "template": "https://s3.hippius.com",
+        "force_path_style": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key"
+        ],
+        "optional": [
+          "region",
+          "endpoint_url"
+        ]
+      },
+      "notes": [
+        "Use the standard S3-compatible multipart path for Hippius storage."
+      ]
+    },
+    {
+      "id": "huggingface",
+      "aliases": [
+        "hf",
+        "hugging-face"
+      ],
+      "name": "Hugging Face",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/huggingface.png",
+      "website_url": "https://huggingface.co/storage",
+      "docs_url": "https://huggingface.co/docs/hub/en/storage-buckets-s3",
+      "region": {
+        "default": "us-east-1"
+      },
+      "endpoint": {
+        "required": false,
+        "template": "https://s3.hf.co/{namespace}",
+        "object_metadata_readback": false,
+        "template_variables": [
+          "namespace"
+        ],
+        "force_path_style": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "namespace"
+        ],
+        "optional": [
+          "region",
+          "endpoint_url"
+        ]
+      },
+      "notes": [
+        "S3 credentials are generated from a Hugging Face access token: Access Tokens settings, then Generate S3 credentials. The access key is prefixed HFAK.",
+        "The gateway serves Storage Buckets only. Dataset, model, and Space repositories are not reachable over S3.",
+        "The namespace is your username or organization and scopes the endpoint; the bucket name is passed on its own."
+      ]
+    },
+    {
+      "id": "minio",
+      "aliases": [
+        "aistor",
+        "minio-aistor"
+      ],
+      "name": "MinIO / AIStor",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/minio.svg",
+      "website_url": "https://min.io/",
+      "docs_url": "https://min.io/docs/minio/linux/developers/javascript/API.html",
+      "endpoint": {
+        "required": true,
+        "force_path_style": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "wasabi",
+      "aliases": [
+        "wasabi-hot-cloud-storage"
+      ],
+      "name": "Wasabi",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/wasabi.svg",
+      "website_url": "https://wasabi.com/",
+      "docs_url": "https://docs.wasabi.com/docs/what-are-the-service-urls-for-wasabi-s-different-storage-regions",
+      "region": {
+        "default": "us-east-1"
+      },
+      "endpoint": {
+        "required": false,
+        "template": "https://s3.{region}.wasabisys.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key"
+        ],
+        "optional": [
+          "region",
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "backblaze-b2",
+      "aliases": [
+        "b2",
+        "backblaze"
+      ],
+      "name": "Backblaze B2",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/backblaze-b2.svg",
+      "website_url": "https://www.backblaze.com/cloud-storage",
+      "docs_url": "https://www.backblaze.com/docs/en/cloud-storage-call-the-s3-compatible-api",
+      "endpoint": {
+        "required": false,
+        "template": "https://s3.{region}.backblazeb2.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "digitalocean-spaces",
+      "aliases": [
+        "digitalocean",
+        "spaces",
+        "do-spaces"
+      ],
+      "name": "DigitalOcean Spaces",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/digitalocean-spaces.svg",
+      "website_url": "https://www.digitalocean.com/products/spaces",
+      "docs_url": "https://docs.digitalocean.com/products/spaces/reference/s3-compatibility/",
+      "endpoint": {
+        "required": false,
+        "template": "https://{region}.digitaloceanspaces.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "scaleway",
+      "aliases": [
+        "scaleway-object-storage"
+      ],
+      "name": "Scaleway Object Storage",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/scaleway.svg",
+      "website_url": "https://www.scaleway.com/en/object-storage/",
+      "docs_url": "https://www.scaleway.com/en/docs/object-storage/concepts/",
+      "endpoint": {
+        "required": false,
+        "template": "https://s3.{region}.scw.cloud",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "akamai-object-storage",
+      "aliases": [
+        "akamai",
+        "akamai-cloud"
+      ],
+      "name": "Akamai Object Storage",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/akamai.svg",
+      "website_url": "https://www.akamai.com/products/object-storage",
+      "docs_url": "https://techdocs.akamai.com/cloud-computing/docs/object-storage",
+      "endpoint": {
+        "required": false,
+        "template": "https://{region}-1.linodeobjects.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "linode-object-storage",
+      "aliases": [
+        "linode",
+        "linode-objects"
+      ],
+      "name": "Linode Object Storage",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/linode.svg",
+      "website_url": "https://www.linode.com/products/object-storage/",
+      "docs_url": "https://techdocs.akamai.com/linode-api/reference/get-object-storage-endpoints",
+      "endpoint": {
+        "required": false,
+        "template": "https://{region}-1.linodeobjects.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "vultr-object-storage",
+      "aliases": [
+        "vultr",
+        "vultrobjects"
+      ],
+      "name": "Vultr Object Storage",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/vultr.svg",
+      "website_url": "https://www.vultr.com/products/object-storage/",
+      "docs_url": "https://docs.vultr.com/platform/security-best-practices/vultr-object-storage",
+      "endpoint": {
+        "required": false,
+        "template": "https://{region}.vultrobjects.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "ibm-cloud-object-storage",
+      "aliases": [
+        "ibm-cos",
+        "ibmcloud",
+        "ibm"
+      ],
+      "name": "IBM Cloud Object Storage",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/ibm-cloud.svg",
+      "website_url": "https://www.ibm.com/products/cloud-object-storage",
+      "docs_url": "https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-endpoints",
+      "endpoint": {
+        "required": false,
+        "template": "https://s3.{region}.cloud-object-storage.appdomain.cloud",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "ovhcloud-object-storage",
+      "aliases": [
+        "ovh",
+        "ovhcloud"
+      ],
+      "name": "OVHcloud Object Storage",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/ovhcloud.svg",
+      "website_url": "https://www.ovhcloud.com/en/public-cloud/object-storage/",
+      "docs_url": "https://docs.ovhcloud.com/en/guides/storage-and-backup/object-storage/s3-location",
+      "endpoint": {
+        "required": false,
+        "template": "https://s3.{region}.io.cloud.ovh.net",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "oracle-object-storage",
+      "aliases": [
+        "oracle",
+        "oci",
+        "oracle-oci"
+      ],
+      "name": "Oracle Cloud Object Storage",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/oracle.svg",
+      "website_url": "https://www.oracle.com/cloud/storage/object-storage/",
+      "docs_url": "https://docs.oracle.com/en-us/iaas/Content/Object/Tasks/s3compatibleapi.htm",
+      "endpoint": {
+        "required": false,
+        "template": "https://{namespace}.compat.objectstorage.{region}.oraclecloud.com",
+        "template_variables": [
+          "namespace",
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "namespace",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "ceph-rgw",
+      "aliases": [
+        "ceph",
+        "ceph-object-gateway",
+        "radosgw"
+      ],
+      "name": "Ceph Object Gateway",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/ceph.svg",
+      "website_url": "https://ceph.io/",
+      "docs_url": "https://docs.ceph.com/en/latest/radosgw/",
+      "endpoint": {
+        "required": true,
+        "force_path_style": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "cloudian-hyperstore",
+      "aliases": [
+        "cloudian",
+        "hyperstore"
+      ],
+      "name": "Cloudian HyperStore",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/cloudian.svg",
+      "website_url": "https://cloudian.com/products/hyperstore/",
+      "docs_url": "https://cloudian.com/wp-content/themes/merged/hyperstore-help/8.2.1/Content/Introduction/Welcome.html",
+      "endpoint": {
+        "required": true,
+        "force_path_style": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "garage",
+      "aliases": [
+        "garage-s3"
+      ],
+      "name": "Garage",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/garage.svg",
+      "website_url": "https://garagehq.deuxfleurs.fr/",
+      "docs_url": "https://garagehq.deuxfleurs.fr/documentation/reference-manual/s3-compatibility/",
+      "endpoint": {
+        "required": true,
+        "force_path_style": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "seaweedfs",
+      "aliases": [
+        "seaweed",
+        "seaweedfs-s3"
+      ],
+      "name": "SeaweedFS",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/seaweedfs.svg",
+      "website_url": "https://seaweedfs.com/",
+      "docs_url": "https://github.com/seaweedfs/seaweedfs",
+      "endpoint": {
+        "required": true,
+        "force_path_style": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "storj-gateway",
+      "aliases": [
+        "storj",
+        "storj-s3"
+      ],
+      "name": "Storj S3 Gateway",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/storj.svg",
+      "website_url": "https://www.storj.io/object-storage/s3-compatibility",
+      "docs_url": "https://storj.dev/dcs/api/s3/s3-compatible-gateway",
+      "endpoint": {
+        "required": false,
+        "template": "https://gateway.storjshare.io",
+        "template_variables": []
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "idrive-e2",
+      "aliases": [
+        "idrive",
+        "e2"
+      ],
+      "name": "IDrive e2",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/idrive-e2.svg",
+      "website_url": "https://www.idrive.com/s3-storage-e2/",
+      "docs_url": "https://www.idrive.com/s3-storage-e2/s3-compatible-api",
+      "endpoint": {
+        "required": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "exoscale-sos",
+      "aliases": [
+        "exoscale",
+        "sos"
+      ],
+      "name": "Exoscale Simple Object Storage",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/exoscale.svg",
+      "website_url": "https://www.exoscale.com/object-storage/",
+      "docs_url": "https://community.exoscale.com/reference/api/object-storage/",
+      "endpoint": {
+        "required": false,
+        "template": "https://sos-{region}.exo.io",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "yandex-object-storage",
+      "aliases": [
+        "yandex",
+        "yandex-cloud"
+      ],
+      "name": "Yandex Object Storage",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/yandex-cloud.svg",
+      "website_url": "https://yandex.cloud/en/services/storage",
+      "docs_url": "https://yandex.cloud/en/docs/storage/s3",
+      "region": {
+        "default": "ru-central1"
+      },
+      "endpoint": {
+        "required": false,
+        "template": "https://storage.yandexcloud.net",
+        "template_variables": []
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key"
+        ],
+        "optional": [
+          "region",
+          "endpoint_url",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "tencent-cos",
+      "aliases": [
+        "tencent",
+        "cos",
+        "qcloud-cos"
+      ],
+      "name": "Tencent Cloud COS",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/tencent-cos.svg",
+      "website_url": "https://www.tencentcloud.com/products/cos",
+      "docs_url": "https://intl.cloud.tencent.com/document/product/436/34688",
+      "endpoint": {
+        "required": false,
+        "template": "https://cos.{region}.myqcloud.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "alibaba-oss",
+      "aliases": [
+        "alibaba",
+        "aliyun",
+        "oss",
+        "alicloud"
+      ],
+      "name": "Alibaba Cloud OSS",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/alibaba-oss.svg",
+      "website_url": "https://www.alibabacloud.com/product/object-storage-service",
+      "docs_url": "https://www.alibabacloud.com/help/en/oss/developer-reference/description",
+      "endpoint": {
+        "required": false,
+        "template": "https://oss-{region}.aliyuncs.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      },
+      "notes": [
+        "Validate presigned multipart behavior against the target OSS region before marking production-ready."
+      ]
+    },
+    {
+      "id": "huawei-obs",
+      "aliases": [
+        "huawei",
+        "obs",
+        "huaweicloud"
+      ],
+      "name": "Huawei Cloud OBS",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/huawei-obs.svg",
+      "website_url": "https://www.huaweicloud.com/intl/en-us/product/obs.html",
+      "docs_url": "https://support.huaweicloud.com/intl/en-us/productdesc-obs/obs_03_0152.html",
+      "endpoint": {
+        "required": false,
+        "template": "https://obs.{region}.myhuaweicloud.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "baidu-bos",
+      "aliases": [
+        "baidu",
+        "bos"
+      ],
+      "name": "Baidu Cloud BOS",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/baidu-bos.svg",
+      "website_url": "https://intl.cloud.baidu.com/product/bos.html",
+      "docs_url": "https://intl.cloud.baidu.com/en/doc/BOS/s/xjwvyq9l4-intl-en",
+      "endpoint": {
+        "required": false,
+        "template": "https://s3.{region}.bcebos.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "contabo-object-storage",
+      "aliases": [
+        "contabo",
+        "contabostorage"
+      ],
+      "name": "Contabo Object Storage",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/contabo.svg",
+      "website_url": "https://contabo.com/en/object-storage/",
+      "docs_url": "https://help.contabo.com/en/support/solutions/articles/103000283058-which-tools-are-compatible-with-contabo-s-object-storage-",
+      "endpoint": {
+        "required": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "hetzner-object-storage",
+      "aliases": [
+        "hetzner",
+        "hetzner-storage"
+      ],
+      "name": "Hetzner Object Storage",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/hetzner.svg",
+      "website_url": "https://www.hetzner.com/storage/object-storage/",
+      "docs_url": "https://docs.hetzner.com/storage/object-storage/overview/",
+      "endpoint": {
+        "required": false,
+        "template": "https://{region}.your-objectstorage.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "upcloud-object-storage",
+      "aliases": [
+        "upcloud"
+      ],
+      "name": "UpCloud Managed Object Storage",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/upcloud.svg",
+      "website_url": "https://upcloud.com/products/managed-object-storage/",
+      "docs_url": "https://upcloud.com/docs/guides/best-practices-object-storage/",
+      "endpoint": {
+        "required": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "ionos-object-storage",
+      "aliases": [
+        "ionos"
+      ],
+      "name": "IONOS Object Storage",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/ionos.svg",
+      "website_url": "https://cloud.ionos.com/storage/object-storage",
+      "docs_url": "https://docs.ionos.com/cloud/storage-and-backup/ionos-object-storage/endpoints",
+      "endpoint": {
+        "required": false,
+        "template": "https://s3.{region}.ionoscloud.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "seagate-lyve-cloud",
+      "aliases": [
+        "seagate",
+        "lyve-cloud",
+        "lyve"
+      ],
+      "name": "Seagate Lyve Cloud",
+      "driver": "s3-compatible",
+      "status": "ready",
+      "logo": "/provider-logos/seagate-lyve-cloud.svg",
+      "website_url": "https://www.seagate.com/services/cloud/storage/",
+      "docs_url": "https://help.lyvecloud.seagate.com/en/s3-api-endpoints.html",
+      "endpoint": {
+        "required": false,
+        "template": "https://s3.{region}.lyvecloud.seagate.com",
+        "template_variables": [
+          "region"
+        ]
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "region"
+        ],
+        "optional": [
+          "endpoint_url",
+          "session_token"
+        ]
+      }
+    },
+    {
+      "id": "netapp-storagegrid",
+      "aliases": [
+        "netapp",
+        "storagegrid"
+      ],
+      "name": "NetApp StorageGRID",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/netapp-storagegrid.svg",
+      "website_url": "https://www.netapp.com/data-storage/storagegrid/",
+      "docs_url": "https://docs.netapp.com/us-en/storagegrid/admin/what-s3-api-operations-are-supported.html",
+      "endpoint": {
+        "required": true,
+        "force_path_style": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "dell-ecs",
+      "aliases": [
+        "dell",
+        "dell-emc-ecs",
+        "ecs"
+      ],
+      "name": "Dell ECS",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/dell-ecs.svg",
+      "website_url": "https://www.dell.com/en-us/dt/storage/ecs/index.htm",
+      "docs_url": "https://developer.dell.com/apis/6782164/versions/3.8.1",
+      "endpoint": {
+        "required": true,
+        "force_path_style": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    },
+    {
+      "id": "pure-storage-flashblade",
+      "aliases": [
+        "pure-storage",
+        "purestorage",
+        "flashblade"
+      ],
+      "name": "Pure Storage FlashBlade",
+      "driver": "s3-compatible",
+      "status": "endpoint-required",
+      "logo": "/provider-logos/pure-storage.svg",
+      "website_url": "https://www.purestorage.com/products/unstructured-data-storage/flashblade-s.html",
+      "docs_url": "https://support.purestorage.com/FlashBlade",
+      "endpoint": {
+        "required": true,
+        "force_path_style": true
+      },
+      "credential_fields": {
+        "required": [
+          "access_key_id",
+          "secret_access_key",
+          "endpoint_url"
+        ],
+        "optional": [
+          "region",
+          "session_token",
+          "force_path_style"
+        ]
+      }
+    }
+  ]
+}
