@@ -1,5 +1,7 @@
 # BEAM Transfer Studio
 
+[![Sentios: active](https://img.shields.io/endpoint?url=https%3A%2F%2Fsentios.io%2Fapi%2Fv1%2Fbadge%2Fbeam-studio.json)](https://sentios.io/active-projects#beam-studio)
+
 Self-hosted transfer studio for Beam.
 
 This repository is structured as a self-hosted TypeScript product with a
